@@ -1,0 +1,6 @@
+{
+  "name": "EuroVault",
+  "description": "Catalog euro banknotes and coins with high-resolution scanning, grading inspection, and market value tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

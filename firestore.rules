@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidCollectorItem(data) {
+      return data.userId is string && data.userId.size() <= 128 &&
+             data.itemType in ['coin', 'banknote'] &&
+             data.denomination is string && data.denomination.size() >= 1 && data.denomination.size() <= 32 &&
+             data.country is string && data.country.size() >= 1 && data.country.size() <= 64 &&
+             data.year is int && data.year >= 1999 && data.year <= 2050 &&
+             data.conditionGrade is string && data.conditionGrade.size() >= 1 && data.conditionGrade.size() <= 32 &&
+             (data.purchasePrice is number || data.purchasePrice is int || data.purchasePrice is float) && data.purchasePrice >= 0 &&
+             (data.currentMarketValue is number || data.currentMarketValue is int || data.currentMarketValue is float) && data.currentMarketValue >= 0 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('seriesOrMint' in data) || (data.seriesOrMint is string && data.seriesOrMint.size() <= 128)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 2000)) &&
+             (!('highResPhotoUri' in data) || (data.highResPhotoUri is string && data.highResPhotoUri.size() <= 2048)) &&
+             (!('hasCertification' in data) || data.hasCertification is bool) &&
+             (!('certCompany' in data) || (data.certCompany is string && data.certCompany.size() <= 64)) &&
+             (!('certNumber' in data) || (data.certNumber is string && data.certNumber.size() <= 64)) &&
+             (!('isFavorite' in data) || data.isFavorite is bool) &&
+             (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    match /users/{userId}/items/{itemId} {
+      allow get, list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(itemId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'userId', 'itemType', 'denomination', 'country', 'year',
+                         'conditionGrade', 'purchasePrice', 'currentMarketValue', 'createdAt'
+                       ]) &&
+                       isValidCollectorItem(incoming());
+
+      allow update: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(itemId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidCollectorItem(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'itemType', 'denomination', 'country', 'year', 'seriesOrMint',
+                         'conditionGrade', 'purchasePrice', 'currentMarketValue', 'notes',
+                         'highResPhotoUri', 'hasCertification', 'certCompany', 'certNumber',
+                         'isFavorite', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(itemId);
+    }
+  }
+}

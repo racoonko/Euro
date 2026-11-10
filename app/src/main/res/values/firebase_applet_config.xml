@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="firestore_database_id" translatable="false">ai-studio-android-eurovaul-48f68af1-f389-4342-859c-952c42f5b548</string>
+    <string name="recaptcha_site_key" translatable="false">6LeSfxkuAAAAAE2FulXNn1e-X3LEwNG-ZMC0HQ5Z</string>
+</resources>

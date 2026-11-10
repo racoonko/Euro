@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "CollectorItem": {
+      "title": "CollectorItem",
+      "description": "A cataloged Euro coin or banknote in a collector's personal inventory.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the owning collector."
+        },
+        "itemType": {
+          "type": "string",
+          "description": "Type of item: coin or banknote.",
+          "enum": ["coin", "banknote"]
+        },
+        "denomination": {
+          "type": "string",
+          "description": "Denomination value label (e.g. €2.00, €50)."
+        },
+        "country": {
+          "type": "string",
+          "description": "Country of issue (e.g. Germany, Monaco, France)."
+        },
+        "year": {
+          "type": "integer",
+          "description": "Year of minting or issue."
+        },
+        "seriesOrMint": {
+          "type": "string",
+          "description": "Mint mark or series identifier (e.g. Mint A - Berlin, Europa Series)."
+        },
+        "conditionGrade": {
+          "type": "string",
+          "description": "Condition grade (UNC, AU, XF, VF, F, VG, PROOF)."
+        },
+        "purchasePrice": {
+          "type": "number",
+          "description": "Purchase cost basis in Euros."
+        },
+        "currentMarketValue": {
+          "type": "number",
+          "description": "Estimated current market valuation in Euros."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Collector notes, variety details, edge inscription."
+        },
+        "highResPhotoUri": {
+          "type": "string",
+          "description": "URI or local path to high-res scan image."
+        },
+        "hasCertification": {
+          "type": "boolean",
+          "description": "Whether the item is slabbed/certified."
+        },
+        "certCompany": {
+          "type": "string",
+          "description": "Grading certification service (e.g. PCGS, NGC)."
+        },
+        "certNumber": {
+          "type": "string",
+          "description": "Certificate serial number."
+        },
+        "isFavorite": {
+          "type": "boolean",
+          "description": "Pinned or favorite item indicator."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "userId",
+        "itemType",
+        "denomination",
+        "country",
+        "year",
+        "conditionGrade",
+        "purchasePrice",
+        "currentMarketValue",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/items/{itemId}": {
+      "schema": "CollectorItem",
+      "description": "Subcollection storing a collector's cataloged coins and banknotes."
+    }
+  }
+}
